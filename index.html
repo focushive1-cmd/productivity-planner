@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a1a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Planner">
+<meta name="description" content="Ultimate Productivity Planner — Plan, Focus, Achieve">
+<title>Ultimate Productivity Planner</title>
+
+<!-- ═══════════════════════════════════════════════════
+     PWA MANIFEST (inline data URL — no external file needed)
+════════════════════════════════════════════════════ -->
+<link rel="manifest" href="data:application/manifest+json,{
+  %22name%22:%22Ultimate%20Productivity%20Planner%22,
+  %22short_name%22:%22Planner%22,
+  %22description%22:%22Plan%2C%20Focus%2C%20Achieve%22,
+  %22start_url%22:%22.%22,
+  %22display%22:%22standalone%22,
+  %22background_color%22:%22%231a1a1a%22,
+  %22theme_color%22:%22%231a1a1a%22,
+  %22icons%22:[{
+    %22src%22:%22data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjAiIGZpbGw9IiMxQTFB勘EiLz48cGF0aCBkPSJNMTUwIDI2MEwyMjAgMzMwTDM2MCAxODAiIHN0cm9rZT0iI0Q0QUYzNyIgc3Ryb2tlLXdpZHRoPSI0MCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyMDAiIHN0cm9rZT0iI0Q0QUYzNyIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWRhc2hhcnJheT0iMjAgMjAiLz48L3N2Zz4=%22,
+    %22sizes%22:%22512x512%22,
+    %22type%22:%22image/svg+xml%22,
+    %22purpose%22:%22any%20maskable%22
+  }]
+}">
+
+<style>
+  :root {
+    --ink: #1a1a1a; --ink-light: #4a4a4a; --ink-faint: #9a9a9a;
+    --cream: #faf8f3; --cream-dark: #f2ede2; --rule: #d8d0bc;
+    --accent: #2c4a3e; --accent-light: #e8f0ec;
+    --gold: #b8960c; --gold-light: #fdf6d8;
+    --page-w: 794px; --page-h: 1123px; --nav-w: 48px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #2a2a28; font-family: 'DM Sans', sans-serif; color: var(--ink);
+    display: flex; justify-content: center; align-items: flex-start;
+    min-height: 100vh; padding: 32px 16px;
+  }
+  .shell { display: flex; flex-direction: column; align-items: center; width: var(--page-w); }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    width: 100%; display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; background: #1a1a1a; border-radius: 10px 10px 0 0;
+    gap: 8px;
+  }
+  .top-bar-left { display: flex; align-items: center; gap: 10px; }
+  .top-bar-title { color: #aaa; font-size: 11px; letter-spacing: 0.12em; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .save-indicator { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: #555; transition: color 0.4s; }
+  .save-indicator.saved { color: #4a8; }
+  .top-bar-right { display: flex; align-items: center; gap: 6px; }
+  .toc-btn {
+    background: var(--accent); color: #fff; border: none; padding: 5px 14px;
+    border-radius: 4px; font-size: 11px; font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.08em; cursor: pointer; transition: background 0.2s;
+  }
+  .toc-btn:hover { background: #3d6b59; }
+  .reset-btn {
+    background: transparent; color: #555; border: 1px solid #333; padding: 5px 10px;
+    border-radius: 4px; font-size: 10px; font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s;
+  }
+  .reset-btn:hover { border-color: #c0392b; color: #c0392b; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 1000; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--cream); border-radius: 10px; padding: 32px;
+    max-width: 380px; width: 90%; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 8px; }
+  .modal p { font-size: 13px; color: var(--ink-light); margin-bottom: 24px; line-height: 1.5; }
+  .modal-btns { display: flex; gap: 10px; justify-content: center; }
+  .modal-cancel { padding: 9px 22px; border: 1px solid var(--rule); border-radius: 5px; background: transparent; cursor: pointer; font-size: 13px; font-family: 'DM Sans', sans-serif; }
+  .modal-confirm { padding: 9px 22px; background: #c0392b; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-family: 'DM Sans', sans-serif; }
+  .modal-cancel:hover { background: var(--cream-dark); }
+  .modal-confirm:hover { background: #a93226; }
+
+  /* ── BOOK ── */
+  .book { display: flex; width: var(--page-w); position: relative; box-shadow: 0 24px 80px rgba(0,0,0,0.55); }
+
+  /* ── RIGHT NAV ── */
+  .right-nav {
+    position: absolute; right: 0; top: 0; width: var(--nav-w); height: 100%;
+    display: flex; flex-direction: column; z-index: 20;
+    border-left: 2px solid rgba(0,0,0,0.12);
+  }
+  .nav-tab {
+    flex: 1; background: var(--accent); color: #fff; border: none; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase; writing-mode: vertical-rl; transition: background 0.18s;
+    padding: 8px 0; display: flex; align-items: center; justify-content: center;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+  }
+  .nav-tab:hover { background: #3d6b59; }
+  .nav-tab.active { background: var(--gold); color: var(--ink); }
+
+  /* ── PAGE ── */
+  .page {
+    display: none; width: calc(var(--page-w) - var(--nav-w));
+    min-height: var(--page-h); background: var(--cream);
+    padding: 48px 44px 60px 44px; position: relative; flex-shrink: 0;
+  }
+  .page.active { display: block; }
+  .page-label {
+    position: absolute; bottom: 20px; left: 0; right: 0; text-align: center;
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    color: var(--ink-faint); letter-spacing: 0.2em; text-transform: uppercase;
+  }
+
+  /* ── HOME ICON ── */
+  .home-icon {
+    position: absolute; top: 16px; left: 16px; width: 26px; height: 26px;
+    background: var(--accent-light); border: 1px solid var(--accent); border-radius: 4px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s; z-index: 10;
+  }
+  .home-icon:hover { background: var(--accent); }
+  .home-icon:hover svg path { stroke: #fff; }
+  .home-icon svg { width: 13px; height: 13px; }
+  .home-icon svg path { stroke: var(--accent); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.15s; }
+
+  /* ── COVER ── */
+  #cover { background: var(--ink); }
+  #cover .page-label { color: #444; }
+  #cover .home-icon { display: none; }
+  .cover-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(var(--page-h) - 60px); }
+  .cover-rule { width: 60px; height: 2px; background: var(--gold); margin: 20px 0; }
+  .cover-title-sm { font-family: 'Playfair Display', serif; font-size: 15px; color: #aaa; letter-spacing: 0.2em; text-transform: uppercase; }
+  .cover-title-lg { font-family: 'Playfair Display', serif; font-size: 72px; font-weight: 900; color: #fff; line-height: 1; text-align: center; }
+  .cover-title-xl { font-family: 'Playfair Display', serif; font-size: 28px; font-style: italic; color: var(--gold); letter-spacing: 0.08em; }
+  .cover-tagline { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.4em; color: #666; text-transform: uppercase; margin-top: 36px; }
+  .cover-fields { display: flex; gap: 40px; margin-top: 40px; }
+  .cover-field { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .cover-field label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: #666; text-transform: uppercase; }
+  .cover-field input { background: transparent; border: none; border-bottom: 1px solid #444; color: #ccc; font-family: 'DM Sans', sans-serif; font-size: 13px; text-align: center; width: 140px; padding: 4px 0; outline: none; }
+  .cover-field input::placeholder { color: #444; }
+  .badge { margin-top: 32px; border: 1px solid #333; padding: 10px 24px; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: #555; text-transform: uppercase; }
+
+  /* ── TOC ── */
+  .section-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.3em; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; }
+  .toc-rule { height: 1px; background: var(--rule); margin: 20px 0; }
+  .toc-list { display: flex; flex-direction: column; gap: 2px; }
+  .toc-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; cursor: pointer; border-radius: 4px; transition: background 0.15s; color: var(--ink); }
+  .toc-item:hover { background: var(--accent-light); }
+  .toc-item-left { display: flex; align-items: center; gap: 16px; }
+  .toc-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); width: 20px; }
+  .toc-name { font-size: 13px; font-weight: 500; }
+  .toc-desc { font-size: 11px; color: var(--ink-faint); margin-top: 1px; }
+  .toc-page { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink-faint); }
+  .toc-arrow { color: var(--accent); font-size: 12px; opacity: 0; transition: opacity 0.15s; }
+  .toc-item:hover .toc-arrow { opacity: 1; }
+
+  /* ── FORMS ── */
+  .daily-header { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .daily-meta { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 80px; }
+  .field-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.2em; color: var(--ink-faint); text-transform: uppercase; }
+  .field-input { border: none; border-bottom: 1px solid var(--rule); background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); outline: none; width: 100%; padding: 3px 0; }
+  .intention-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; }
+  .intention-input { border: 1px solid var(--rule); background: var(--gold-light); border-radius: 4px; padding: 8px 10px; width: 100%; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); outline: none; resize: none; height: 38px; }
+  .time-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  .time-block-title { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 2px solid var(--accent); }
+  .time-slot { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .time-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--ink-faint); width: 30px; flex-shrink: 0; }
+  .time-input { flex: 1; border: none; border-bottom: 1px solid var(--rule); background: transparent; font-size: 10px; font-family: 'DM Sans', sans-serif; color: var(--ink); outline: none; padding: 1px 0; }
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+  .priority-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent); font-weight: 600; width: 18px; flex-shrink: 0; }
+  .priority-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .todo-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+  .checkbox { width: 13px; height: 13px; border: 1.5px solid var(--rule); border-radius: 2px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .checkbox.checked { background: var(--accent); border-color: var(--accent); }
+  .checkbox.checked::after { content: '✓'; font-size: 8px; color: #fff; }
+  .mood-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .mood-chip { font-size: 10px; padding: 3px 8px; border-radius: 20px; border: 1px solid var(--rule); cursor: pointer; text-align: center; transition: all 0.15s; color: var(--ink-light); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.05em; }
+  .mood-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tracker-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .tracker-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--ink-faint); width: 48px; }
+  .tracker-dots { display: flex; gap: 3px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--rule); cursor: pointer; transition: background 0.1s; }
+  .dot.filled { background: var(--accent); border-color: var(--accent); }
+  .dot.gold { background: var(--gold); border-color: var(--gold); }
+
+  /* ── WEEKLY ── */
+  .weekly-goals { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .goal-col-title { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 2px solid var(--accent); }
+  .goal-textarea { width: 100%; border: 1px solid var(--rule); border-radius: 3px; padding: 6px; font-size: 10px; font-family: 'DM Sans', sans-serif; resize: none; height: 60px; outline: none; background: var(--cream-dark); }
+  .day-row { display: grid; grid-template-columns: 50px 1fr; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .day-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--accent); letter-spacing: 0.1em; }
+  .day-date-row { display: flex; align-items: center; gap: 6px; }
+  .day-date { font-size: 10px; color: var(--ink-faint); font-family: 'DM Mono', monospace; width: 28px; }
+  .day-line { flex: 1; border: none; border-bottom: 1px solid var(--rule); background: transparent; font-size: 11px; font-family: 'DM Sans', sans-serif; color: var(--ink); outline: none; padding: 2px 0; }
+  .weekly-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+  .habit-focus-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .habit-name { font-size: 10px; color: var(--ink-light); }
+  .day-chips { display: flex; gap: 2px; }
+  .day-chip { width: 16px; height: 16px; border-radius: 3px; border: 1px solid var(--rule); cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 7px; color: var(--ink-faint); transition: all 0.12s; }
+  .day-chip.done { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .reflection-field { margin-bottom: 8px; }
+  .reflection-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; margin-bottom: 4px; }
+  .reflection-line { border: none; border-bottom: 1px solid var(--rule); background: transparent; font-size: 11px; font-family: 'DM Sans', sans-serif; color: var(--ink); outline: none; padding: 2px 0; width: 100%; display: block; margin-bottom: 4px; }
+
+  /* ── HABIT TABLE ── */
+  .habit-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .habit-table th { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: var(--ink-faint); text-align: center; padding: 4px 2px; border-bottom: 1px solid var(--rule); }
+  .habit-table th.habit-col { text-align: left; padding-left: 4px; }
+  .habit-table td { padding: 2px; text-align: center; border-bottom: 1px solid var(--cream-dark); }
+  .habit-table td.habit-name { font-size: 10px; text-align: left; padding: 4px 4px; color: var(--ink-light); white-space: nowrap; }
+  .habit-cell { width: 16px; height: 16px; border-radius: 3px; border: 1px solid var(--rule); margin: 0 auto; cursor: pointer; transition: all 0.12s; display: flex; align-items: center; justify-content: center; font-size: 8px; }
+  .habit-cell.done { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .habit-cell.missed { background: #f0e0e0; border-color: #d0a0a0; color: #c05050; }
+  .habit-cell.skip { background: var(--cream-dark); border-color: var(--rule); color: var(--ink-faint); }
+  .habit-legend { display: flex; gap: 16px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--ink-faint); font-family: 'DM Mono', monospace; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── TODO GRID ── */
+  .todo-section { margin-bottom: 16px; }
+  .todo-section-title { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.25em; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 2px solid var(--accent); }
+  .todo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .priority-badge { font-family: 'DM Mono', monospace; font-size: 8px; padding: 1px 5px; border-radius: 2px; margin-right: 5px; font-weight: 600; }
+  .priority-H { background: #fde8e8; color: #c0392b; }
+  .priority-M { background: #fef3d7; color: #b07a00; }
+  .priority-L { background: var(--accent-light); color: var(--accent); }
+  select.priority-sel { border: none; background: transparent; font-size: 9px; font-family: 'DM Mono', monospace; color: var(--ink-faint); outline: none; cursor: pointer; }
+
+  /* ── GOALS ── */
+  .vision-box { background: var(--accent); color: #fff; border-radius: 6px; padding: 14px 16px; margin-bottom: 20px; }
+  .vision-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
+  .vision-input { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); color: #fff; font-family: 'Playfair Display', serif; font-size: 14px; font-style: italic; width: 100%; outline: none; padding: 4px 0; }
+  .vision-input::placeholder { color: rgba(255,255,255,0.35); }
+  .goals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .goal-card { background: var(--cream-dark); border-radius: 6px; padding: 12px; }
+  .goal-card-title { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; }
+  .goal-entry { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
+  .goal-entry:last-child { border-bottom: none; }
+  .goal-entry-num { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--gold); font-weight: 700; margin-bottom: 4px; }
+  .mini-label { font-family: 'DM Mono', monospace; font-size: 7px; letter-spacing: 0.15em; color: var(--ink-faint); text-transform: uppercase; margin-top: 3px; margin-bottom: 1px; }
+  .goal-field { border: none; border-bottom: 1px solid var(--rule); background: transparent; font-size: 10px; font-family: 'DM Sans', sans-serif; color: var(--ink); outline: none; width: 100%; padding: 2px 0; }
+  .action-steps { background: var(--gold-light); border-radius: 6px; padding: 12px 16px; }
+  .action-step-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .step-num { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--gold); font-weight: 700; width: 40px; }
+  .step-input { flex: 1; border: none; border-bottom: 1px solid var(--rule); background: transparent; font-size: 10px; font-family: 'DM Sans', sans-serif; color: var(--ink); outline: none; padding: 2px 0; }
+  .step-by { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--ink-faint); }
+  .step-date { width: 70px; border: none; border-bottom: 1px solid var(--rule); background: transparent; font-size: 9px; font-family: 'DM Mono', monospace; color: var(--ink); outline: none; }
+
+  /* ── NOTES ── */
+  .note-line { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--rule); }
+  .note-num { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--rule); width: 20px; flex-shrink: 0; text-align: right; }
+  .note-input { flex: 1; border: none; background: transparent; font-size: 11px; font-family: 'DM Sans', sans-serif; color: var(--ink); outline: none; }
+
+  /* ── QUOTES ── */
+  .quote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .quote-card { background: var(--cream-dark); border-left: 3px solid var(--accent); padding: 14px 16px; border-radius: 0 6px 6px 0; }
+  .quote-text { font-family: 'Playfair Display', serif; font-size: 13px; font-style: italic; line-height: 1.5; color: var(--ink); margin-bottom: 8px; }
+  .quote-attr { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--gold); letter-spacing: 0.1em; }
+
+  /* ── TIPS ── */
+  .tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  .tip-card { background: var(--cream-dark); border-radius: 6px; padding: 14px; }
+  .tip-num { font-family: 'DM Mono', monospace; font-size: 22px; color: var(--rule); line-height: 1; margin-bottom: 6px; font-weight: 300; }
+  .tip-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+  .tip-body { font-size: 11px; color: var(--ink-light); line-height: 1.5; }
+
+  /* ── CLOSING ── */
+  #closing { background: var(--accent); }
+  #closing .page-label { color: rgba(255,255,255,0.3); }
+  .closing-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(var(--page-h) - 80px); text-align: center; }
+  .closing-pre { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.3em; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 20px; }
+  .closing-main { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 900; color: #fff; line-height: 1.05; }
+  .closing-sub { font-family: 'Playfair Display', serif; font-size: 24px; font-style: italic; color: var(--gold); margin-top: 10px; }
+  .closing-rule { width: 40px; height: 2px; background: rgba(255,255,255,0.2); margin: 28px auto; }
+  .closing-footer { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+
+  /* ── SUBPAGE NAV ── */
+  .subpage-nav { display: flex; gap: 6px; margin-bottom: 16px; }
+  .subpage-btn { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; padding: 4px 10px; border: 1px solid var(--rule); border-radius: 3px; cursor: pointer; background: transparent; color: var(--ink-faint); transition: all 0.15s; }
+  .subpage-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ── INSTALL BANNER ── */
+  .install-banner {
+    display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #fff; padding: 12px 20px;
+    border-radius: 8px; font-size: 12px; font-family: 'DM Sans', sans-serif;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 500;
+    display: flex; align-items: center; gap: 12px; max-width: 360px;
+  }
+  .install-banner.hidden { display: none !important; }
+  .install-btn { background: var(--gold); color: var(--ink); border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 11px; font-family: 'DM Mono', monospace; font-weight: 700; white-space: nowrap; }
+  .install-close { background: transparent; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 16px; padding: 0 4px; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #1a1a1a; }
+  ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+  input, textarea, select { color-scheme: light; }
+</style>
+</head>
+<body>
+
+<!-- ═══════ RESET MODAL ═══════ -->
+<div class="modal-overlay" id="reset-modal">
+  <div class="modal">
+    <h3>Clear All Data?</h3>
+    <p>This will permanently erase all your entries, habits, to-dos, goals, and notes. This cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeResetModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmReset()">Yes, Clear Everything</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ INSTALL BANNER ═══════ -->
+<div class="install-banner hidden" id="install-banner">
+  <span>📲 Add this planner to your home screen for the best experience</span>
+  <button class="install-btn" id="install-btn">Install</button>
+  <button class="install-close" onclick="document.getElementById('install-banner').classList.add('hidden')">×</button>
+</div>
+
+<div class="shell">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="top-bar-title">Ultimate Productivity Planner</span>
+      <span class="save-indicator" id="save-indicator">● Auto-save on</span>
+    </div>
+    <div class="top-bar-right">
+      <button class="reset-btn" onclick="openResetModal()">⟳ Clear All</button>
+      <button class="toc-btn" onclick="showPage('toc')">☰ Contents</button>
+    </div>
+  </div>
+
+  <div class="book">
+
+    <!-- ═══ COVER ═══ -->
+    <div class="page active" id="cover">
+      <div class="cover-inner">
+        <div class="cover-title-sm">The</div>
+        <div class="cover-title-lg">ULTIMATE</div>
+        <div class="cover-title-xl">Productivity</div>
+        <div class="cover-title-lg" style="font-size:52px;color:#ccc">PLANNER</div>
+        <div class="cover-rule"></div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.35em;color:#888;text-transform:uppercase">Plan · Focus · Achieve</div>
+        <div class="cover-fields">
+          <div class="cover-field"><label>Name</label><input id="cover-name" type="text" placeholder="Your name"></div>
+          <div class="cover-field"><label>Year</label><input id="cover-year" type="text" placeholder="2025 / 2026"></div>
+        </div>
+        <div class="badge">Digital Planner Pack · Students &amp; Professionals Edition</div>
+        <div class="cover-tagline">All data auto-saved · Works offline · PWA installable</div>
+      </div>
+      <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 01 —</div>
+    </div>
+
+    <!-- ═══ TOC ═══ -->
+    <div class="page" id="toc">
+      <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
+      <div style="padding-left:36px">
+        <div class="section-eyebrow">Table of Contents</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:700;line-height:1.1">Everything you<br>need, in one place.</div>
+        <div style="font-size:13px;color:var(--ink-light);margin-top:6px">Click any entry to navigate directly to that section.</div>
+      </div>
+      <div class="toc-rule"></div>
+      <div class="toc-list">
+        <div class="toc-item" onclick="showPage('cover')"><div class="toc-item-left"><span class="toc-num">01</span><div><div class="toc-name">Cover Page</div><div class="toc-desc">The Beginning of Your Journey</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toc-page">01</span><span class="toc-arrow">→</span></div></div>
+        <div class="toc-item" onclick="showPage('toc')"><div class="toc-item-left"><span class="toc-num">02</span><div><div class="toc-name">Table of Contents</div><div class="toc-desc">Navigate Your Planner</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toc-page">02</span><span class="toc-arrow">→</span></div></div>
+        <div class="toc-item" onclick="showPage('daily')"><div class="toc-item-left"><span class="toc-num">03</span><div><div class="toc-name">Daily Planner</div><div class="toc-desc">Structure Every Single Day</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toc-page">03–04</span><span class="toc-arrow">→</span></div></div>
+        <div class="toc-item" onclick="showPage('weekly')"><div class="toc-item-left"><span class="toc-num">05</span><div><div class="toc-name">Weekly Planner</div><div class="toc-desc">See Your Full Week at a Glance</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toc-page">05–06</span><span class="toc-arrow">→</span></div></div>
+        <div class="toc-item" onclick="showPage('habits')"><div class="toc-item-left"><span class="toc-num">07</span><div><div class="toc-name">Habit Tracker</div><div class="toc-desc">31-Day Consistency Grid</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toc-page">07–08</span><span class="toc-arrow">→</span></div></div>
+        <div class="toc-item" onclick="showPage('todo')"><div class="toc-item-left"><span class="toc-num">09</span><div><div class="toc-name">To-Do List</div><div class="toc-desc">Prioritise What Matters Most</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toc-page">09–10</span><span class="toc-arrow">→</span></div></div>
+        <div class="toc-item" onclick="showPage('goals')"><div class="toc-item-left"><span class="toc-num">11</span><div><div class="toc-name">Goal Setting</div><div class="toc-desc">Short-Term &amp; Long-Term Vision</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toc-page">11</span><span class="toc-arrow">→</span></div></div>
+        <div class="toc-item" onclick="showPage('notes')"><div class="toc-item-left"><span class="toc-num">12</span><div><div class="toc-name">Notes — Lined &amp; Dot Grid</div><div class="toc-desc">Capture Every Idea · Sketch · Brainstorm</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toc-page">12–15</span><span class="toc-arrow">→</span></div></div>
+        <div class="toc-item" onclick="showPage('quotes')"><div class="toc-item-left"><span class="toc-num">16</span><div><div class="toc-name">Motivational Quotes</div><div class="toc-desc">Daily Fuel for Your Mindset</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toc-page">16</span><span class="toc-arrow">→</span></div></div>
+        <div class="toc-item" onclick="showPage('tips')"><div class="toc-item-left"><span class="toc-num">17</span><div><div class="toc-name">Productivity Tips</div><div class="toc-desc">Systems That Actually Work</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toc-page">17</span><span class="toc-arrow">→</span></div></div>
+        <div class="toc-item" onclick="showPage('closing')"><div class="toc-item-left"><span class="toc-num">18</span><div><div class="toc-name">Closing Page</div><div class="toc-desc">Your Journey Starts Now</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toc-page">18</span><span class="toc-arrow">→</span></div></div>
+      </div>
+      <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 02 —</div>
+    </div>
+
+    <!-- ═══ DAILY ═══ -->
+    <div class="page" id="daily">
+      <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
+      <div style="padding-left:36px">
+        <div class="section-eyebrow">Daily Planner</div>
+        <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:4px">Make today count.</div>
+      </div>
+      <div class="subpage-nav" style="padding-left:36px;margin-top:10px">
+        <button class="subpage-btn active" onclick="switchSubpage('daily','daily-p1',this)">Day 1</button>
+        <button class="subpage-btn" onclick="switchSubpage('daily','daily-p2',this)">Day 2</button>
+      </div>
+      <div id="daily-p1" style="padding-left:36px"></div>
+      <div id="daily-p2" style="display:none;padding-left:36px"></div>
+      <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 03–04 —</div>
+    </div>
+
+    <!-- ═══ WEEKLY ═══ -->
+    <div class="page" id="weekly">
+      <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
+      <div style="padding-left:36px">
+        <div class="section-eyebrow">Weekly Planner</div>
+        <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:4px">One week of intentional progress.</div>
+      </div>
+      <div class="subpage-nav" style="padding-left:36px;margin-top:10px">
+        <button class="subpage-btn active" onclick="switchSubpage('weekly','weekly-p1',this)">Week 1</button>
+        <button class="subpage-btn" onclick="switchSubpage('weekly','weekly-p2',this)">Week 2</button>
+      </div>
+      <div id="weekly-p1" style="padding-left:36px"></div>
+      <div id="weekly-p2" style="display:none;padding-left:36px"></div>
+      <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 05–06 —</div>
+    </div>
+
+    <!-- ═══ HABITS ═══ -->
+    <div class="page" id="habits">
+      <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
+      <div style="padding-left:36px">
+        <div class="section-eyebrow">Habit Tracker</div>
+        <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:2px">Small actions, compounding results.</div>
+      </div>
+      <div class="subpage-nav" style="padding-left:36px;margin-top:8px">
+        <button class="subpage-btn active" onclick="switchSubpage('habits','habits-p1',this)">Month 1</button>
+        <button class="subpage-btn" onclick="switchSubpage('habits','habits-p2',this)">Month 2</button>
+      </div>
+      <div id="habits-p1" style="padding-left:36px"></div>
+      <div id="habits-p2" style="display:none;padding-left:36px"></div>
+      <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 07–08 —</div>
+    </div>
+
+    <!-- ═══ TO-DO ═══ -->
+    <div class="page" id="todo">
+      <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
+      <div style="padding-left:36px">
+        <div class="section-eyebrow">To-Do List</div>
+        <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:4px">Do less — but do it better.</div>
+      </div>
+      <div class="subpage-nav" style="padding-left:36px;margin-top:10px">
+        <button class="subpage-btn active" onclick="switchSubpage('todo','todo-p1',this)">List 1</button>
+        <button class="subpage-btn" onclick="switchSubpage('todo','todo-p2',this)">List 2</button>
+      </div>
+      <div id="todo-p1" style="padding-left:36px"></div>
+      <div id="todo-p2" style="display:none;padding-left:36px"></div>
+      <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 09–10 —</div>
+    </div>
+
+    <!-- ═══ GOALS ═══ -->
+    <div class="page" id="goals">
+      <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
+      <div id="goals-inner" style="padding-left:36px"></div>
+      <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 11 —</div>
+    </div>
+
+    <!-- ═══ NOTES ═══ -->
+    <div class="page" id="notes">
+      <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
+      <div style="padding-left:36px">
+        <div class="section-eyebrow">Notes</div>
+        <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:4px">Every great idea starts with a single line.</div>
+      </div>
+      <div class="subpage-nav" style="padding-left:36px;margin-top:10px">
+        <button class="subpage-btn active" onclick="switchSubpage('notes','notes-lined1',this)">Lined 1</button>
+        <button class="subpage-btn" onclick="switchSubpage('notes','notes-lined2',this)">Lined 2</button>
+        <button class="subpage-btn" onclick="switchSubpage('notes','notes-dot1',this)">Dot Grid 1</button>
+        <button class="subpage-btn" onclick="switchSubpage('notes','notes-dot2',this)">Dot Grid 2</button>
+      </div>
+      <div id="notes-lined1" style="padding-left:36px"></div>
+      <div id="notes-lined2" style="display:none;padding-left:36px"></div>
+      <div id="notes-dot1" style="display:none;padding-left:36px"></div>
+      <div id="notes-dot2" style="display:none;padding-left:36px"></div>
+      <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 12–15 —</div>
+    </div>
+
+    <!-- ═══ QUOTES ═══ -->
+    <div class="page" id="quotes">
+      <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
+      <div style="padding-left:36px">
+        <div class="section-eyebrow">Motivational Quotes</div>
+        <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:2px">Words That Move You Forward.</div>
+        <div style="font-size:12px;color:var(--ink-faint)">Return to these when your motivation needs a spark.</div>
+        <div class="quote-grid">
+          <div class="quote-card"><div class="quote-text">The secret of getting ahead is getting started.</div><div class="quote-attr">— Mark Twain</div></div>
+          <div class="quote-card"><div class="quote-text">Focus on being productive instead of busy.</div><div class="quote-attr">— Tim Ferriss</div></div>
+          <div class="quote-card"><div class="quote-text">Small daily improvements lead to staggering long-term results.</div><div class="quote-attr">— Robin Sharma</div></div>
+          <div class="quote-card"><div class="quote-text">You don't have to be great to start, but you have to start to be great.</div><div class="quote-attr">— Zig Ziglar</div></div>
+          <div class="quote-card"><div class="quote-text">What you do today can improve all your tomorrows.</div><div class="quote-attr">— Ralph Marston</div></div>
+          <div class="quote-card"><div class="quote-text">Schedule your priorities — don't prioritise your schedule.</div><div class="quote-attr">— Stephen Covey</div></div>
+          <div class="quote-card"><div class="quote-text">Done is better than perfect.</div><div class="quote-attr">— Sheryl Sandberg</div></div>
+          <div class="quote-card"><div class="quote-text">Energy, not time, is the fundamental currency of performance.</div><div class="quote-attr">— Jim Loehr</div></div>
+        </div>
+      </div>
+      <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 16 —</div>
+    </div>
+
+    <!-- ═══ TIPS ═══ -->
+    <div class="page" id="tips">
+      <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
+      <div style="padding-left:36px">
+        <div class="section-eyebrow">Productivity Tips</div>
+        <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:2px">Systems that actually work.</div>
+        <div class="tips-grid">
+          <div class="tip-card"><div class="tip-num">01</div><div class="tip-title">Time Blocking</div><div class="tip-body">Divide your day into focused blocks for specific tasks. Batch similar work to protect deep concentration time.</div></div>
+          <div class="tip-card"><div class="tip-num">02</div><div class="tip-title">The Pomodoro Method</div><div class="tip-body">Work for 25 minutes, then take a 5-minute break. After 4 cycles, take a 20-minute rest to sustain energy.</div></div>
+          <div class="tip-card"><div class="tip-num">03</div><div class="tip-title">Eat the Frog</div><div class="tip-body">Tackle your hardest task first every morning — before email or social media. Everything else feels easy after.</div></div>
+          <div class="tip-card"><div class="tip-num">04</div><div class="tip-title">The 2-Minute Rule</div><div class="tip-body">If a task takes less than 2 minutes, do it immediately. Small tasks pile into overwhelming backlogs if deferred.</div></div>
+          <div class="tip-card"><div class="tip-num">05</div><div class="tip-title">Weekly Review</div><div class="tip-body">Every Sunday, spend 15 minutes reviewing wins, identifying improvements, and setting clear intentions for next week.</div></div>
+          <div class="tip-card"><div class="tip-num">06</div><div class="tip-title">Single-Tasking</div><div class="tip-body">Multitasking splits attention and reduces quality. One task, one objective, full focus beats fragmented effort always.</div></div>
+          <div class="tip-card"><div class="tip-num">07</div><div class="tip-title">Energy Management</div><div class="tip-body">Schedule demanding tasks at your personal energy peak. Reserve low-energy periods for email and routine admin.</div></div>
+          <div class="tip-card"><div class="tip-num">08</div><div class="tip-title">The Night Capture</div><div class="tip-body">Before sleeping, write tomorrow's top 3 tasks. Your mind processes them overnight — you wake with clear direction.</div></div>
+        </div>
+      </div>
+      <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 17 —</div>
+    </div>
+
+    <!-- ═══ CLOSING ═══ -->
+    <div class="page" id="closing">
+      <div class="closing-inner">
+        <div class="closing-pre">You have everything you need.</div>
+        <div class="closing-main">Now Go Do</div>
+        <div class="closing-sub">The Work.</div>
+        <div class="closing-rule"></div>
+        <div class="closing-footer">Ultimate Productivity Planner · 2025 / 2026<br><br>Thank you for choosing this planner. Now make every day count.</div>
+      </div>
+      <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 18 —</div>
+    </div>
+
+    <!-- ═══ RIGHT NAV ═══ -->
+    <div class="right-nav">
+      <button class="nav-tab active" id="nav-cover"   onclick="showPage('cover')">Cover</button>
+      <button class="nav-tab"        id="nav-toc"     onclick="showPage('toc')">Index</button>
+      <button class="nav-tab"        id="nav-daily"   onclick="showPage('daily')">Daily</button>
+      <button class="nav-tab"        id="nav-weekly"  onclick="showPage('weekly')">Weekly</button>
+      <button class="nav-tab"        id="nav-habits"  onclick="showPage('habits')">Habits</button>
+      <button class="nav-tab"        id="nav-todo"    onclick="showPage('todo')">To-Do</button>
+      <button class="nav-tab"        id="nav-goals"   onclick="showPage('goals')">Goals</button>
+      <button class="nav-tab"        id="nav-notes"   onclick="showPage('notes')">Notes</button>
+      <button class="nav-tab"        id="nav-quotes"  onclick="showPage('quotes')">Quotes</button>
+      <button class="nav-tab"        id="nav-tips"    onclick="showPage('tips')">Tips</button>
+    </div>
+
+  </div><!-- /book -->
+</div><!-- /shell -->
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════════════
+   1. AUTO-ID COUNTER — every element that needs saving gets
+      a guaranteed-unique id before it enters the DOM
+═══════════════════════════════════════════════════════════ */
+let _uidCounter = 0;
+function uid(prefix) {
+  return (prefix || 'el') + '-' + (++_uidCounter);
+}
+function assignId(el, prefix) {
+  if (!el.id) el.id = uid(prefix);
+  return el;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2. SAVE / LOAD ENGINE
+   All saveable elements use data-save="true" and an id.
+   Debounced auto-save triggers 400ms after last keystroke/click.
+═══════════════════════════════════════════════════════════ */
+const LS_KEY = 'upp_data_v1';
+const LS_PAGE = 'upp_page_v1';
+const LS_SUBPAGES = 'upp_subpages_v1';
+let _saveTimer = null;
+
+function schedSave() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveAll, 400);
+}
+
+function saveAll() {
+  const data = {};
+  document.querySelectorAll('[data-save]').forEach(el => {
+    if (!el.id) return;
+    const tag = el.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') {
+      data[el.id] = el.value;
+    } else if (el.classList.contains('checkbox')) {
+      data[el.id] = el.classList.contains('checked') ? '1' : '0';
+    } else if (el.classList.contains('mood-chip')) {
+      data[el.id] = el.classList.contains('active') ? '1' : '0';
+    } else if (el.classList.contains('dot')) {
+      data[el.id] = el.classList.contains('filled') || el.classList.contains('gold') ? '1' : '0';
+    } else if (el.classList.contains('day-chip')) {
+      data[el.id] = el.classList.contains('done') ? '1' : '0';
+    } else if (el.classList.contains('habit-cell')) {
+      data[el.id] = el.dataset.state || '0';
+    } else if (tag === 'SELECT') {
+      data[el.id] = el.value;
+    }
+  });
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    flashSaved();
+  } catch(e) { console.warn('Save failed', e); }
+}
+
+function loadAll() {
+  let data = {};
+  try { data = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch(e) {}
+  document.querySelectorAll('[data-save]').forEach(el => {
+    if (!el.id || !(el.id in data)) return;
+    const val = data[el.id];
+    const tag = el.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') {
+      el.value = val;
+    } else if (el.classList.contains('checkbox')) {
+      el.classList.toggle('checked', val === '1');
+    } else if (el.classList.contains('mood-chip')) {
+      el.classList.toggle('active', val === '1');
+    } else if (el.classList.contains('dot')) {
+      const cls = el.dataset.colorclass || 'filled';
+      el.classList.toggle(cls, val === '1');
+    } else if (el.classList.contains('day-chip')) {
+      el.classList.toggle('done', val === '1');
+    } else if (el.classList.contains('habit-cell')) {
+      const s = parseInt(val) || 0;
+      el.dataset.state = s;
+      el.className = 'habit-cell';
+      const icons = ['','✓','✗','–'];
+      el.textContent = icons[s];
+      if (s===1) el.classList.add('done');
+      else if (s===2) el.classList.add('missed');
+      else if (s===3) el.classList.add('skip');
+    } else if (tag === 'SELECT') {
+      el.value = val;
+      el.dispatchEvent(new Event('change'));
+    }
+  });
+}
+
+function flashSaved() {
+  const ind = document.getElementById('save-indicator');
+  ind.textContent = '● Saved';
+  ind.classList.add('saved');
+  clearTimeout(ind._t);
+  ind._t = setTimeout(() => {
+    ind.textContent = '● Auto-save on';
+    ind.classList.remove('saved');
+  }, 1800);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. NAVIGATION — remembers last page
+═══════════════════════════════════════════════════════════ */
+const allPages = ['cover','toc','daily','weekly','habits','todo','goals','notes','quotes','tips','closing'];
+const navMap = { cover:'cover',toc:'toc',daily:'daily',weekly:'weekly',habits:'habits',todo:'todo',goals:'goals',notes:'notes',quotes:'quotes',tips:'tips',closing:'tips' };
+// subpage state: pageId -> active subId
+const subpageState = {};
+
+function showPage(id) {
+  allPages.forEach(p => {
+    const el = document.getElementById(p);
+    if (el) el.classList.remove('active');
+    const nav = document.getElementById('nav-'+p);
+    if (nav) nav.classList.remove('active');
+  });
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+  const navBtn = document.getElementById('nav-'+(navMap[id]||id));
+  if (navBtn) navBtn.classList.add('active');
+  window.scrollTo(0,0);
+  try { localStorage.setItem(LS_PAGE, id); } catch(e) {}
+}
+
+function switchSubpage(pageId, subId, btn) {
+  // hide all subpages of this section
+  const page = document.getElementById(pageId);
+  if (!page) return;
+  page.querySelectorAll('div[id]').forEach(d => {
+    const id = d.id;
+    if (id.startsWith(pageId+'-p') || id.startsWith('habits-p') ||
+        id.startsWith('todo-p') || id.startsWith('weekly-p') ||
+        id.startsWith('notes-lined') || id.startsWith('notes-dot')) {
+      d.style.display = 'none';
+    }
+  });
+  const target = document.getElementById(subId);
+  if (target) target.style.display = 'block';
+  page.querySelectorAll('.subpage-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  subpageState[pageId] = subId;
+  // persist subpage states
+  try { localStorage.setItem(LS_SUBPAGES, JSON.stringify(subpageState)); } catch(e) {}
+}
+
+function restoreNavState() {
+  // restore last page
+  let page = 'cover';
+  try { page = localStorage.getItem(LS_PAGE) || 'cover'; } catch(e) {}
+  showPage(page);
+  // restore subpage positions — need to trigger button states too
+  let sp = {};
+  try { sp = JSON.parse(localStorage.getItem(LS_SUBPAGES) || '{}'); } catch(e) {}
+  Object.entries(sp).forEach(([pageId, subId]) => {
+    const subBtn = document.querySelector(`[onclick*="'${pageId}'"][onclick*="'${subId}'"]`);
+    switchSubpage(pageId, subId, subBtn);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. RESET
+═══════════════════════════════════════════════════════════ */
+function openResetModal() { document.getElementById('reset-modal').classList.add('open'); }
+function closeResetModal() { document.getElementById('reset-modal').classList.remove('open'); }
+function confirmReset() {
+  try {
+    localStorage.removeItem(LS_KEY);
+    localStorage.removeItem(LS_PAGE);
+    localStorage.removeItem(LS_SUBPAGES);
+  } catch(e) {}
+  closeResetModal();
+  location.reload();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. SAVEABLE ELEMENT FACTORY — every created element gets
+      an id and data-save, then hooks schedSave on the right event
+═══════════════════════════════════════════════════════════ */
+function makeInput(opts) {
+  const inp = document.createElement('input');
+  inp.type = opts.type || 'text';
+  if (opts.placeholder) inp.placeholder = opts.placeholder;
+  if (opts.style) inp.style.cssText = opts.style;
+  if (opts.className) inp.className = opts.className;
+  assignId(inp, 'inp');
+  inp.setAttribute('data-save', '1');
+  inp.addEventListener('input', schedSave);
+  return inp;
+}
+
+function makeTextarea(opts) {
+  const ta = document.createElement('textarea');
+  if (opts.placeholder) ta.placeholder = opts.placeholder;
+  if (opts.style) ta.style.cssText = opts.style;
+  if (opts.className) ta.className = opts.className;
+  assignId(ta, 'ta');
+  ta.setAttribute('data-save', '1');
+  ta.addEventListener('input', schedSave);
+  return ta;
+}
+
+function makeCheckbox() {
+  const cb = document.createElement('div');
+  cb.className = 'checkbox';
+  assignId(cb, 'cb');
+  cb.setAttribute('data-save', '1');
+  cb.addEventListener('click', () => { cb.classList.toggle('checked'); schedSave(); });
+  return cb;
+}
+
+function makeMoodChip(label) {
+  const chip = document.createElement('div');
+  chip.className = 'mood-chip';
+  chip.textContent = label;
+  assignId(chip, 'mood');
+  chip.setAttribute('data-save', '1');
+  chip.addEventListener('click', () => { chip.classList.toggle('active'); schedSave(); });
+  return chip;
+}
+
+function makeDot(colorClass) {
+  const d = document.createElement('div');
+  d.className = 'dot';
+  d.dataset.colorclass = colorClass || 'filled';
+  assignId(d, 'dot');
+  d.setAttribute('data-save', '1');
+  return d;
+}
+
+function makeSelect(options, defaultVal) {
+  const sel = document.createElement('select');
+  sel.className = 'priority-sel';
+  options.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o; opt.textContent = o;
+    sel.appendChild(opt);
+  });
+  if (defaultVal) sel.value = defaultVal;
+  assignId(sel, 'sel');
+  sel.setAttribute('data-save', '1');
+  sel.addEventListener('change', schedSave);
+  return sel;
+}
+
+function makeDayChip(label) {
+  const chip = document.createElement('div');
+  chip.className = 'day-chip';
+  chip.textContent = label;
+  assignId(chip, 'dc');
+  chip.setAttribute('data-save', '1');
+  chip.addEventListener('click', () => { chip.classList.toggle('done'); schedSave(); });
+  return chip;
+}
+
+function makeHabitCell(cells, getTotalCell) {
+  const cell = document.createElement('div');
+  cell.className = 'habit-cell';
+  cell.dataset.state = '0';
+  assignId(cell, 'hc');
+  cell.setAttribute('data-save', '1');
+  cell.addEventListener('click', () => {
+    const s = (parseInt(cell.dataset.state)+1) % 4;
+    cell.dataset.state = s;
+    cell.className = 'habit-cell';
+    const icons = ['','✓','✗','–'];
+    cell.textContent = icons[s];
+    if (s===1) cell.classList.add('done');
+    else if (s===2) cell.classList.add('missed');
+    else if (s===3) cell.classList.add('skip');
+    let total = 0;
+    cells.forEach(c2 => { if (c2.dataset.state==='1') total++; });
+    const tc = getTotalCell();
+    if (tc) tc.textContent = total;
+    schedSave();
+  });
+  return cell;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   6. SECTION BUILDERS
+═══════════════════════════════════════════════════════════ */
+
+// ── Water / Energy dot rows ──────────────────────────────
+function buildDotRow(containerId, count, colorClass) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const dots = [];
+  for (let i = 0; i < count; i++) {
+    const d = makeDot(colorClass);
+    dots.push(d);
+    c.appendChild(d);
+  }
+  // click fills up to and including clicked dot
+  dots.forEach((d, idx) => {
+    d.addEventListener('click', () => {
+      dots.forEach((dot, j) => {
+        const cls = colorClass || 'filled';
+        if (j <= idx) dot.classList.add(cls);
+        else dot.classList.remove(cls);
+      });
+      schedSave();
+    });
+  });
+}
+
+// ── Daily page ───────────────────────────────────────────
+function buildDailyPage(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+
+  // Meta row
+  const hdr = document.createElement('div');
+  hdr.className = 'daily-header';
+  ['Date','Day','Week No.','Focus Word'].forEach(lbl => {
+    const wrap = document.createElement('div'); wrap.className = 'daily-meta';
+    const label = document.createElement('div'); label.className = 'field-label'; label.textContent = lbl;
+    const inp = makeInput({ placeholder: '—', className: 'field-input' });
+    wrap.appendChild(label); wrap.appendChild(inp); hdr.appendChild(wrap);
+  });
+  c.appendChild(hdr);
+
+  // Morning intention
+  const intentWrap = document.createElement('div'); intentWrap.style.marginBottom = '18px';
+  const intentLabel = document.createElement('div'); intentLabel.className = 'intention-label'; intentLabel.textContent = 'Morning Intention';
+  const intentTA = makeTextarea({ placeholder: 'Today I intend to…', className: 'intention-input' });
+  intentWrap.appendChild(intentLabel); intentWrap.appendChild(intentTA);
+  c.appendChild(intentWrap);
+
+  // Time grid
+  const tg = document.createElement('div'); tg.className = 'time-grid';
+  const cols = [
+    { title: 'Morning · 5am–12pm', slots: ['5:00','6:00','7:00','8:00','9:00','10:00','11:00'] },
+    { title: 'Afternoon · 12–5pm', slots: ['12:00','1:00','2:00','3:00','4:00'] },
+    { title: 'Evening · 5–10pm', slots: ['5:00','6:00','7:00','8:00','9:00','10:00'] }
+  ];
+  cols.forEach(col => {
+    const div = document.createElement('div');
+    const title = document.createElement('div'); title.className = 'time-block-title'; title.textContent = col.title;
+    div.appendChild(title);
+    col.slots.forEach(t => {
+      const row = document.createElement('div'); row.className = 'time-slot';
+      const lbl = document.createElement('span'); lbl.className = 'time-label'; lbl.textContent = t;
+      const inp = makeInput({ className: 'time-input' });
+      row.appendChild(lbl); row.appendChild(inp); div.appendChild(row);
+    });
+    tg.appendChild(div);
+  });
+  c.appendChild(tg);
+
+  // Bottom grid
+  const bg = document.createElement('div'); bg.className = 'bottom-grid';
+
+  // Left: priorities + mood
+  const leftCol = document.createElement('div');
+  const prioEye = document.createElement('div'); prioEye.className = 'section-eyebrow'; prioEye.style.marginBottom='8px'; prioEye.textContent = 'Top 3 Priorities';
+  leftCol.appendChild(prioEye);
+  ['1','2','3'].forEach(n => {
+    const row = document.createElement('div'); row.className = 'priority-row';
+    const num = document.createElement('span'); num.className = 'priority-num'; num.textContent = n;
+    const inp = makeInput({ placeholder: n==='1'?'Most important task':n==='2'?'Second priority':'Third priority', className: 'field-input' });
+    row.appendChild(num); row.appendChild(inp); leftCol.appendChild(row);
+  });
+  const moodEye = document.createElement('div'); moodEye.className = 'section-eyebrow'; moodEye.style.cssText='margin-top:10px;margin-bottom:6px'; moodEye.textContent = 'Mood Tracker';
+  leftCol.appendChild(moodEye);
+  const moodGrid = document.createElement('div'); moodGrid.className = 'mood-grid';
+  ['Focused','Motivated','Calm','Tired','Stressed','Grateful'].forEach(m => moodGrid.appendChild(makeMoodChip(m)));
+  leftCol.appendChild(moodGrid);
+
+  // Right: todos + trackers
+  const rightCol = document.createElement('div');
+  const todoEye = document.createElement('div'); todoEye.className = 'section-eyebrow'; todoEye.style.marginBottom='8px'; todoEye.textContent = 'To-Do List';
+  rightCol.appendChild(todoEye);
+  for (let i=0; i<8; i++) {
+    const row = document.createElement('div'); row.className = 'todo-row';
+    const cb = makeCheckbox();
+    const inp = makeInput({ style: 'flex:1;border:none;border-bottom:1px solid var(--rule);background:transparent;font-size:10px;font-family:\'DM Sans\',sans-serif;color:var(--ink);outline:none;padding:2px 0' });
+    row.appendChild(cb); row.appendChild(inp); rightCol.appendChild(row);
+  }
+  // Water tracker
+  const trackWrap = document.createElement('div'); trackWrap.style.marginTop = '12px';
+  const trackEye = document.createElement('div'); trackEye.className = 'section-eyebrow'; trackEye.style.marginBottom='6px'; trackEye.textContent = 'Trackers';
+  trackWrap.appendChild(trackEye);
+  ['Water','Energy'].forEach((lbl, idx) => {
+    const row = document.createElement('div'); row.className = 'tracker-row';
+    if (idx>0) row.style.marginTop='6px';
+    const label = document.createElement('span'); label.className = 'tracker-label'; label.textContent = lbl;
+    const dotsWrap = document.createElement('div'); dotsWrap.className = 'tracker-dots';
+    const count = lbl === 'Water' ? 8 : 5;
+    const colorClass = lbl === 'Water' ? 'filled' : 'gold';
+    const dots = [];
+    for (let i=0; i<count; i++) {
+      const d = makeDot(colorClass);
+      dots.push(d);
+      dotsWrap.appendChild(d);
+    }
+    dots.forEach((d, i) => {
+      d.addEventListener('click', () => {
+        dots.forEach((dot, j) => {
+          if (j<=i) dot.classList.add(colorClass); else dot.classList.remove(colorClass);
+        });
+        schedSave();
+      });
+    });
+    row.appendChild(label); row.appendChild(dotsWrap); trackWrap.appendChild(row);
+  });
+  rightCol.appendChild(trackWrap);
+
+  bg.appendChild(leftCol); bg.appendChild(rightCol); c.appendChild(bg);
+
+  // Notes area
+  const notesEye = document.createElement('div'); notesEye.className = 'section-eyebrow'; notesEye.style.marginBottom='6px'; notesEye.textContent = 'Notes';
+  const notesTA = makeTextarea({ placeholder: 'Capture thoughts, ideas, reflections…', style: 'width:100%;height:56px;border:1px solid var(--rule);border-radius:3px;padding:6px 8px;font-size:11px;font-family:\'DM Sans\',sans-serif;resize:none;outline:none;background:var(--cream-dark);' });
+  c.appendChild(notesEye); c.appendChild(notesTA);
+}
+
+// ── Weekly page ──────────────────────────────────────────
+function buildWeeklyPage(containerId, pageNum) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+
+  // Meta row
+  const hdr = document.createElement('div'); hdr.className = 'daily-header'; hdr.style.marginBottom='10px';
+  ['Week of','To','Week No.','Theme'].forEach(lbl => {
+    const wrap = document.createElement('div'); wrap.className = 'daily-meta';
+    const label = document.createElement('div'); label.className = 'field-label'; label.textContent = lbl;
+    const inp = makeInput({ placeholder: '—', className: 'field-input' });
+    wrap.appendChild(label); wrap.appendChild(inp); hdr.appendChild(wrap);
+  });
+  c.appendChild(hdr);
+
+  // Weekly goals
+  const wg = document.createElement('div'); wg.className = 'weekly-goals';
+  ['Personal','Work / Study','Health'].forEach(goal => {
+    const div = document.createElement('div');
+    const t = document.createElement('div'); t.className = 'goal-col-title'; t.textContent = goal;
+    const ta = makeTextarea({ placeholder: goal + ' goals…', className: 'goal-textarea' });
+    div.appendChild(t); div.appendChild(ta); wg.appendChild(div);
+  });
+  c.appendChild(wg);
+
+  // Day rows
+  ['MON','TUE','WED','THU','FRI','SAT','SUN'].forEach(day => {
+    const row = document.createElement('div'); row.className = 'day-row';
+    const lbl = document.createElement('span'); lbl.className = 'day-label'; lbl.textContent = day;
+    const dateRow = document.createElement('div'); dateRow.className = 'day-date-row';
+    const dateInp = makeInput({ placeholder: 'date', className: 'day-date' });
+    const lineInp = makeInput({ placeholder: 'Plans for ' + day[0]+day.slice(1).toLowerCase() + '…', className: 'day-line' });
+    dateRow.appendChild(dateInp); dateRow.appendChild(lineInp);
+    row.appendChild(lbl); row.appendChild(dateRow); c.appendChild(row);
+  });
+
+  // Bottom
+  const bottom = document.createElement('div'); bottom.className = 'weekly-bottom'; bottom.style.marginTop='14px';
+
+  // Habit focus
+  const habitCol = document.createElement('div');
+  const habitEye = document.createElement('div'); habitEye.className = 'section-eyebrow'; habitEye.style.marginBottom='8px'; habitEye.textContent = 'Habit Focus This Week';
+  habitCol.appendChild(habitEye);
+  ['Wake early','Exercise','Water intake','Read 20 min','Meditate','Healthy meals'].forEach(name => {
+    const row = document.createElement('div'); row.className = 'habit-focus-row';
+    const lbl = document.createElement('span'); lbl.className = 'habit-name'; lbl.textContent = name;
+    const chips = document.createElement('div'); chips.className = 'day-chips';
+    ['M','T','W','T','F','S','S'].forEach(d => chips.appendChild(makeDayChip(d)));
+    row.appendChild(lbl); row.appendChild(chips); habitCol.appendChild(row);
+  });
+
+  // Reflection
+  const reflCol = document.createElement('div');
+  const reflEye = document.createElement('div'); reflEye.className = 'section-eyebrow'; reflEye.style.marginBottom='8px'; reflEye.textContent = 'Weekly Reflection';
+  reflCol.appendChild(reflEye);
+  [['Best moment','rfl'],['What to improve','rfl'],['Key lesson','rfl'],['I am grateful for','rfl']].forEach(([lbl]) => {
+    const field = document.createElement('div'); field.className = 'reflection-field';
+    const label = document.createElement('div'); label.className = 'reflection-label'; label.textContent = lbl;
+    field.appendChild(label);
+    for (let i=0; i<2; i++) {
+      const inp = makeInput({ placeholder: '—', className: 'reflection-line' });
+      inp.style.display = 'block';
+      field.appendChild(inp);
+    }
+    reflCol.appendChild(field);
+  });
+
+  bottom.appendChild(habitCol); bottom.appendChild(reflCol); c.appendChild(bottom);
+}
+
+// ── Habit tracker ────────────────────────────────────────
+function buildHabitPage(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+
+  // Meta
+  const meta = document.createElement('div'); meta.style.cssText = 'display:flex;gap:16px;margin-bottom:10px';
+  [['Month','daily-meta'],['Year','daily-meta'],['Goal','daily-meta']].forEach(([lbl, cls], idx) => {
+    const wrap = document.createElement('div'); wrap.className = cls;
+    if (idx===2) wrap.style.flex = '2';
+    const l = document.createElement('div'); l.className = 'field-label'; l.textContent = lbl;
+    const inp = makeInput({ placeholder: '—', className: 'field-input' });
+    wrap.appendChild(l); wrap.appendChild(inp); meta.appendChild(wrap);
+  });
+  c.appendChild(meta);
+
+  const habitNames = [
+    'Drink 8 Glasses of Water','Exercise / Move Body','Read 20+ Minutes',
+    'Meditate','Study / Deep Work','Healthy Eating','Sleep by 10:30 PM',
+    'No Social Media','Gratitude Journal','Cold Shower / Wellness'
+  ];
+
+  const tableWrap = document.createElement('div'); tableWrap.style.overflowX = 'auto';
+  const table = document.createElement('table'); table.className = 'habit-table';
+
+  // Header
+  const thead = document.createElement('thead');
+  const hrow = document.createElement('tr');
+  const hth = document.createElement('th'); hth.className = 'habit-col'; hth.textContent = 'HABIT'; hrow.appendChild(hth);
+  for (let d=1; d<=31; d++) { const th = document.createElement('th'); th.textContent = d; hrow.appendChild(th); }
+  const sumTh = document.createElement('th'); sumTh.textContent = '∑'; hrow.appendChild(sumTh);
+  thead.appendChild(hrow); table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  habitNames.forEach(name => {
+    const tr = document.createElement('tr');
+    const nameTd = document.createElement('td'); nameTd.className = 'habit-name'; nameTd.textContent = name; tr.appendChild(nameTd);
+    const cells = [];
+    let totalSpan;
+    for (let d=0; d<31; d++) {
+      const td = document.createElement('td');
+      const cell = makeHabitCell(cells, () => totalSpan);
+      cells.push(cell);
+      td.appendChild(cell); tr.appendChild(td);
+    }
+    const totalTd = document.createElement('td');
+    totalSpan = document.createElement('span');
+    totalSpan.textContent = '0';
+    totalSpan.style.cssText = "font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:700";
+    totalTd.appendChild(totalSpan); tr.appendChild(totalTd);
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  c.appendChild(tableWrap);
+
+  const legend = document.createElement('div'); legend.className = 'habit-legend';
+  [['var(--accent)','Done'],['#f0e0e0','Missed'],['var(--cream-dark)','Skip/Rest']].forEach(([bg, lbl]) => {
+    const item = document.createElement('div'); item.className = 'legend-item';
+    const dot = document.createElement('div'); dot.className = 'legend-dot'; dot.style.background = bg; dot.style.border = '1px solid var(--rule)';
+    const txt = document.createTextNode(lbl);
+    item.appendChild(dot); item.appendChild(txt); legend.appendChild(item);
+  });
+  const hint = document.createElement('div'); hint.className = 'legend-item'; hint.style.fontStyle='italic'; hint.textContent = 'Click: Done → Missed → Skip → Empty';
+  legend.appendChild(hint);
+  c.appendChild(legend);
+}
+
+// ── To-Do grid ───────────────────────────────────────────
+function buildTodoPage(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+
+  const metaRow = document.createElement('div'); metaRow.style.cssText='display:flex;gap:16px;margin-bottom:12px';
+  [['Date',1],['Project / Context',2]].forEach(([lbl, flex]) => {
+    const wrap = document.createElement('div'); wrap.className = 'daily-meta'; wrap.style.flex = flex;
+    const l = document.createElement('div'); l.className = 'field-label'; l.textContent = lbl;
+    const inp = makeInput({ placeholder: '—', className: 'field-input' });
+    wrap.appendChild(l); wrap.appendChild(inp); metaRow.appendChild(wrap);
+  });
+  c.appendChild(metaRow);
+
+  const legend = document.createElement('div');
+  legend.style.cssText = 'margin-bottom:8px;padding:6px 10px;background:var(--cream-dark);border-radius:4px;font-family:\'DM Mono\',monospace;font-size:9px;color:var(--ink-faint);letter-spacing:0.1em';
+  legend.innerHTML = 'Priority: <span style="background:#fde8e8;color:#c0392b;padding:1px 5px;border-radius:2px;margin:0 3px;font-weight:700">H</span> High — Do Today &nbsp; <span style="background:#fef3d7;color:#b07a00;padding:1px 5px;border-radius:2px;margin:0 3px;font-weight:700">M</span> Medium — This Week &nbsp; <span style="background:var(--accent-light);color:var(--accent);padding:1px 5px;border-radius:2px;margin:0 3px;font-weight:700">L</span> Low — When Possible';
+  c.appendChild(legend);
+
+  const grid = document.createElement('div'); grid.className = 'todo-grid';
+  ['Work / Study','Personal','Errands','Creative'].forEach(section => {
+    const div = document.createElement('div'); div.className = 'todo-section';
+    const title = document.createElement('div'); title.className = 'todo-section-title'; title.textContent = section;
+    div.appendChild(title);
+    for (let i=0; i<8; i++) {
+      const row = document.createElement('div'); row.className = 'todo-row';
+      const badgeEl = document.createElement('span'); badgeEl.className = 'priority-badge priority-H'; badgeEl.textContent = 'H';
+      const sel = makeSelect(['H','M','L']);
+      sel.style.display = 'none'; // badge is the visual; sel is hidden data
+      sel.addEventListener('change', () => {
+        const map = {'H':'priority-H','M':'priority-M','L':'priority-L'};
+        badgeEl.className = 'priority-badge ' + (map[sel.value]||'priority-H');
+        badgeEl.textContent = sel.value;
+        schedSave();
+      });
+      badgeEl.addEventListener('click', () => {
+        const cycle = {H:'M',M:'L',L:'H'};
+        sel.value = cycle[sel.value] || 'H';
+        sel.dispatchEvent(new Event('change'));
+      });
+      const cb = makeCheckbox();
+      const inp = makeInput({ style: "flex:1;border:none;border-bottom:1px solid var(--rule);background:transparent;font-size:10px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;padding:2px 0" });
+      row.appendChild(sel); row.appendChild(badgeEl); row.appendChild(cb); row.appendChild(inp);
+      div.appendChild(row);
+    }
+    grid.appendChild(div);
+  });
+  c.appendChild(grid);
+}
+
+// ── Goals page ───────────────────────────────────────────
+function buildGoalsPage() {
+  const c = document.getElementById('goals-inner');
+  if (!c) return;
+
+  const eyebrow = document.createElement('div'); eyebrow.className = 'section-eyebrow'; eyebrow.textContent = 'Goal Setting';
+  const h = document.createElement('div'); h.style.cssText = "font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:4px"; h.textContent = 'Clarity is the foundation of achievement.';
+  const metaRow = document.createElement('div'); metaRow.style.cssText='display:flex;gap:16px;margin-top:8px';
+  [['Year / Quarter',1],['Life Area / Theme',2]].forEach(([lbl,flex]) => {
+    const wrap = document.createElement('div'); wrap.className = 'daily-meta'; wrap.style.flex=flex;
+    const l = document.createElement('div'); l.className='field-label'; l.textContent=lbl;
+    const inp = makeInput({ placeholder:'—', className:'field-input' });
+    wrap.appendChild(l); wrap.appendChild(inp); metaRow.appendChild(wrap);
+  });
+  c.appendChild(eyebrow); c.appendChild(h); c.appendChild(metaRow);
+
+  // Vision box
+  const vbox = document.createElement('div'); vbox.className = 'vision-box'; vbox.style.marginTop='14px';
+  const vlbl = document.createElement('div'); vlbl.className='vision-label'; vlbl.textContent='My Vision Statement — In 1 year I will be someone who…';
+  const vinp = makeInput({ placeholder:'Write your vision…', className:'vision-input' });
+  vbox.appendChild(vlbl); vbox.appendChild(vinp); c.appendChild(vbox);
+
+  // Goals grid
+  const grid = document.createElement('div'); grid.className='goals-grid';
+  [['Short-Term Goals · 1–3 months',3],['Long-Term Goals · 6–12 months',3]].forEach(([title]) => {
+    const card = document.createElement('div'); card.className='goal-card';
+    const cardTitle = document.createElement('div'); cardTitle.className='goal-card-title'; cardTitle.textContent=title;
+    card.appendChild(cardTitle);
+    for (let i=1; i<=3; i++) {
+      const entry = document.createElement('div'); entry.className='goal-entry';
+      const num = document.createElement('div'); num.className='goal-entry-num'; num.textContent=String(i).padStart(2,'0');
+      entry.appendChild(num);
+      ['Goal','Why','First Step'].forEach(lbl => {
+        const l = document.createElement('div'); l.className='mini-label'; l.textContent=lbl;
+        const inp = makeInput({ placeholder:'—', className:'goal-field' });
+        entry.appendChild(l); entry.appendChild(inp);
+      });
+      card.appendChild(entry);
+    }
+    grid.appendChild(card);
+  });
+  c.appendChild(grid);
+
+  // Action steps
+  const steps = document.createElement('div'); steps.className='action-steps';
+  const stepsEye = document.createElement('div'); stepsEye.className='section-eyebrow'; stepsEye.style.marginBottom='10px'; stepsEye.textContent='90-Day Action Steps';
+  steps.appendChild(stepsEye);
+  for (let i=1; i<=5; i++) {
+    const row = document.createElement('div'); row.className='action-step-row';
+    const num = document.createElement('span'); num.className='step-num'; num.textContent='STEP '+i;
+    const inp = makeInput({ placeholder:'Action…', className:'step-input' });
+    const by = document.createElement('span'); by.className='step-by'; by.textContent='By:';
+    const date = makeInput({ placeholder:'date', className:'step-date' });
+    row.appendChild(num); row.appendChild(inp); row.appendChild(by); row.appendChild(date);
+    steps.appendChild(row);
+  }
+  c.appendChild(steps);
+}
+
+// ── Notes — lined ────────────────────────────────────────
+function buildLinedNotes(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const metaRow = document.createElement('div'); metaRow.style.cssText='display:flex;gap:16px;margin-bottom:12px';
+  [['Topic / Project',2],['Date',1]].forEach(([lbl,flex]) => {
+    const wrap = document.createElement('div'); wrap.className='daily-meta'; wrap.style.flex=flex;
+    const l = document.createElement('div'); l.className='field-label'; l.textContent=lbl;
+    const inp = makeInput({ placeholder:'—', className:'field-input' });
+    wrap.appendChild(l); wrap.appendChild(inp); metaRow.appendChild(wrap);
+  });
+  c.appendChild(metaRow);
+  for (let i=1; i<=35; i++) {
+    const row = document.createElement('div'); row.className='note-line';
+    const num = document.createElement('span'); num.className='note-num'; num.textContent=String(i).padStart(2,'0');
+    const inp = makeInput({ className:'note-input' });
+    row.appendChild(num); row.appendChild(inp); c.appendChild(row);
+  }
+}
+
+// ── Notes — dot grid ─────────────────────────────────────
+function buildDotNotes(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const metaRow = document.createElement('div'); metaRow.style.cssText='display:flex;gap:16px;margin-bottom:12px';
+  [['Topic / Project',2],['Date',1]].forEach(([lbl,flex]) => {
+    const wrap = document.createElement('div'); wrap.className='daily-meta'; wrap.style.flex=flex;
+    const l = document.createElement('div'); l.className='field-label'; l.textContent=lbl;
+    const inp = makeInput({ placeholder:'—', className:'field-input' });
+    wrap.appendChild(l); wrap.appendChild(inp); metaRow.appendChild(wrap);
+  });
+  c.appendChild(metaRow);
+  const hint = document.createElement('div'); hint.style.cssText="font-size:10px;color:var(--ink-faint);margin-bottom:8px;font-family:'DM Mono',monospace;letter-spacing:0.1em"; hint.textContent='SKETCH · MAP · BRAINSTORM · CREATE';
+  c.appendChild(hint);
+  const ta = makeTextarea({ placeholder:'Free write, sketch ideas, brainstorm here…', style:"width:100%;height:780px;border:1px solid var(--rule);border-radius:4px;padding:12px;font-family:'DM Sans',sans-serif;font-size:12px;resize:none;outline:none;background:var(--cream-dark);background-image:radial-gradient(circle, #c8bfa8 1px, transparent 1px);background-size:18px 18px;" });
+  c.appendChild(ta);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   7. INIT — build everything, then load saved data, then
+      restore nav state
+═══════════════════════════════════════════════════════════ */
+(function init() {
+  // Build all dynamic sections
+  buildDailyPage('daily-p1');
+  buildDailyPage('daily-p2');
+  buildWeeklyPage('weekly-p1');
+  buildWeeklyPage('weekly-p2');
+  buildHabitPage('habits-p1');
+  buildHabitPage('habits-p2');
+  buildTodoPage('todo-p1');
+  buildTodoPage('todo-p2');
+  buildGoalsPage();
+  buildLinedNotes('notes-lined1');
+  buildLinedNotes('notes-lined2');
+  buildDotNotes('notes-dot1');
+  buildDotNotes('notes-dot2');
+
+  // Hook static inputs (cover name/year)
+  document.querySelectorAll('#cover-name, #cover-year').forEach(el => {
+    el.setAttribute('data-save', '1');
+    el.addEventListener('input', schedSave);
+  });
+
+  // Load all saved data
+  loadAll();
+
+  // Restore navigation state
+  restoreNavState();
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   8. SUBPAGE SWITCHER (global, called from HTML)
+═══════════════════════════════════════════════════════════ */
+// already defined above — just ensure the function is accessible
+
+/* ═══════════════════════════════════════════════════════════
+   9. SERVICE WORKER (inline blob — no external file needed)
+   Caches the app for full offline use.
+═══════════════════════════════════════════════════════════ */
+if ('serviceWorker' in navigator) {
+  const swCode = `
+const CACHE = 'upp-v1';
+const FONTS = 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400&display=swap';
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll([FONTS]).catch(()=>{}))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+  ));
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).then(resp => {
+        if (resp && resp.status === 200 && e.request.method === 'GET') {
+          const clone = resp.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return resp;
+      }).catch(() => cached);
+    })
+  );
+});
+`;
+  const swBlob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl, { scope: './' })
+    .then(reg => console.log('SW registered', reg.scope))
+    .catch(err => console.warn('SW failed:', err));
+}
+
+/* ═══════════════════════════════════════════════════════════
+   10. PWA INSTALL PROMPT
+═══════════════════════════════════════════════════════════ */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('install-banner');
+  banner.classList.remove('hidden');
+  document.getElementById('install-btn').addEventListener('click', () => {
+    banner.classList.add('hidden');
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  });
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').classList.add('hidden');
+  deferredPrompt = null;
+});
+</script>
+</body>
+</html>
