@@ -10,24 +10,9 @@
 <meta name="description" content="Ultimate Productivity Planner — Plan, Focus, Achieve">
 <title>Ultimate Productivity Planner</title>
 
-<!-- ═══════════════════════════════════════════════════
-     PWA MANIFEST (inline data URL — no external file needed)
-════════════════════════════════════════════════════ -->
-<link rel="manifest" href="data:application/manifest+json,{
-  %22name%22:%22Ultimate%20Productivity%20Planner%22,
-  %22short_name%22:%22Planner%22,
-  %22description%22:%22Plan%2C%20Focus%2C%20Achieve%22,
-  %22start_url%22:%22.%22,
-  %22display%22:%22standalone%22,
-  %22background_color%22:%22%231a1a1a%22,
-  %22theme_color%22:%22%231a1a1a%22,
-  %22icons%22:[{
-    %22src%22:%22data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjAiIGZpbGw9IiMxQTFB勘EiLz48cGF0aCBkPSJNMTUwIDI2MEwyMjAgMzMwTDM2MCAxODAiIHN0cm9rZT0iI0Q0QUYzNyIgc3Ryb2tlLXdpZHRoPSI0MCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyMDAiIHN0cm9rZT0iI0Q0QUYzNyIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWRhc2hhcnJheT0iMjAgMjAiLz48L3N2Zz4=%22,
-    %22sizes%22:%22512x512%22,
-    %22type%22:%22image/svg+xml%22,
-    %22purpose%22:%22any%20maskable%22
-  }]
-}">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMTIiIGZpbGw9IiMxYTFhMWEiLz48cmVjdCB4PSIxNDAiIHk9IjEyMCIgd2lkdGg9IjIzMiIgaGVpZ2h0PSIyNzIiIHJ4PSIxNiIgc3Ryb2tlPSIjYjg5NjBjIiBzdHJva2Utd2lkdGg9IjI0IiBmaWxsPSJub25lIi8+PGxpbmUgeDE9IjIwMCIgeTE9IjEyMCIgeDI9IjIwMCIgeTI9IjM5MiIgc3Ryb2tlPSIjYjg5NjBjIiBzdHJva2Utd2lkdGg9IjI0Ii8+PHBhdGggZD0iTTI2MCAxMjAgdjEyMCBsMzUgLTIwIGwzNSAyMCB2LTEyMCB6IiBmaWxsPSIjYjg5NjBjIi8+PC9zdmc+">
+
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Ultimate%20Productivity%20Planner%22%2C%22short_name%22%3A%22Planner%22%2C%22description%22%3A%22Plan%2C%20Focus%2C%20Achieve%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231a1a1a%22%2C%22theme_color%22%3A%22%231a1a1a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%2BPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMTIiIGZpbGw9IiMxYTFhMWEiLz48cmVjdCB4PSIxNDAiIHk9IjEyMCIgd2lkdGg9IjIzMiIgaGVpZ2h0PSIyNzIiIHJ4PSIxNiIgc3Ryb2tlPSIjYjg5NjBjIiBzdHJva2Utd2lkdGg9IjI0IiBmaWxsPSJub25lIi8%2BPGxpbmUgeDE9IjIwMCIgeTE9IjEyMCIgeDI9IjIwMCIgeTI9IjM5MiIgc3Ryb2tlPSIjYjg5NjBjIiBzdHJva2Utd2lkdGg9IjI0Ii8%2BPHBhdGggZD0iTTI2MCAxMjAgdjEyMCBsMzUgLTIwIGwzNSAyMCB2LTEyMCB6IiBmaWxsPSIjYjg5NjBjIi8%2BPC9zdmc%2B%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
 
 <style>
   :root {
@@ -308,7 +293,6 @@
 </head>
 <body>
 
-<!-- ═══════ RESET MODAL ═══════ -->
 <div class="modal-overlay" id="reset-modal">
   <div class="modal">
     <h3>Clear All Data?</h3>
@@ -320,7 +304,6 @@
   </div>
 </div>
 
-<!-- ═══════ INSTALL BANNER ═══════ -->
 <div class="install-banner hidden" id="install-banner">
   <span>📲 Add this planner to your home screen for the best experience</span>
   <button class="install-btn" id="install-btn">Install</button>
@@ -328,7 +311,6 @@
 </div>
 
 <div class="shell">
-  <!-- TOP BAR -->
   <div class="top-bar">
     <div class="top-bar-left">
       <span class="top-bar-title">Ultimate Productivity Planner</span>
@@ -342,7 +324,6 @@
 
   <div class="book">
 
-    <!-- ═══ COVER ═══ -->
     <div class="page active" id="cover">
       <div class="cover-inner">
         <div class="cover-title-sm">The</div>
@@ -361,7 +342,6 @@
       <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 01 —</div>
     </div>
 
-    <!-- ═══ TOC ═══ -->
     <div class="page" id="toc">
       <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
       <div style="padding-left:36px">
@@ -386,7 +366,6 @@
       <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 02 —</div>
     </div>
 
-    <!-- ═══ DAILY ═══ -->
     <div class="page" id="daily">
       <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
       <div style="padding-left:36px">
@@ -402,7 +381,6 @@
       <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 03–04 —</div>
     </div>
 
-    <!-- ═══ WEEKLY ═══ -->
     <div class="page" id="weekly">
       <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
       <div style="padding-left:36px">
@@ -418,7 +396,6 @@
       <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 05–06 —</div>
     </div>
 
-    <!-- ═══ HABITS ═══ -->
     <div class="page" id="habits">
       <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
       <div style="padding-left:36px">
@@ -434,7 +411,6 @@
       <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 07–08 —</div>
     </div>
 
-    <!-- ═══ TO-DO ═══ -->
     <div class="page" id="todo">
       <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
       <div style="padding-left:36px">
@@ -450,14 +426,12 @@
       <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 09–10 —</div>
     </div>
 
-    <!-- ═══ GOALS ═══ -->
     <div class="page" id="goals">
       <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
       <div id="goals-inner" style="padding-left:36px"></div>
       <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 11 —</div>
     </div>
 
-    <!-- ═══ NOTES ═══ -->
     <div class="page" id="notes">
       <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
       <div style="padding-left:36px">
@@ -477,7 +451,6 @@
       <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 12–15 —</div>
     </div>
 
-    <!-- ═══ QUOTES ═══ -->
     <div class="page" id="quotes">
       <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
       <div style="padding-left:36px">
@@ -498,7 +471,6 @@
       <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 16 —</div>
     </div>
 
-    <!-- ═══ TIPS ═══ -->
     <div class="page" id="tips">
       <div class="home-icon" onclick="showPage('cover')" title="Home"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/><path d="M3 12v9h18v-9"/></svg></div>
       <div style="padding-left:36px">
@@ -518,7 +490,6 @@
       <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 17 —</div>
     </div>
 
-    <!-- ═══ CLOSING ═══ -->
     <div class="page" id="closing">
       <div class="closing-inner">
         <div class="closing-pre">You have everything you need.</div>
@@ -530,7 +501,6 @@
       <div class="page-label">ULTIMATE PRODUCTIVITY PLANNER — 18 —</div>
     </div>
 
-    <!-- ═══ RIGHT NAV ═══ -->
     <div class="right-nav">
       <button class="nav-tab active" id="nav-cover"   onclick="showPage('cover')">Cover</button>
       <button class="nav-tab"        id="nav-toc"     onclick="showPage('toc')">Index</button>
@@ -544,10 +514,7 @@
       <button class="nav-tab"        id="nav-tips"    onclick="showPage('tips')">Tips</button>
     </div>
 
-  </div><!-- /book -->
-</div><!-- /shell -->
-
-<script>
+  </div></div><script>
 'use strict';
 /* ═══════════════════════════════════════════════════════════
    1. AUTO-ID COUNTER — every element that needs saving gets
